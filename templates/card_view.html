@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Editing {{ deck.name }}
+{% endblock %}
+
+{% block main %}
+    <div class="d-flex flex-column gap-3 flex-fill p-4">
+        <a href="{{ url_for('deck_view', deck_id=deck.id) }}" style="all: unset;">
+            <h1 class="card-title"><span class="{{ deck.color }}">{{ deck.icon }}</span> {{ deck.name }}</h1>
+        </a>
+
+
+        <div class="card p-1">
+            <div class="card-body">
+
+                <div gap-0>
+                    {% for _ in range(card.progress) %}
+                        <span class="green">❚</span>
+                    {% endfor %}
+                    {% for _ in range(10 - card.progress) %}
+                        <span class="light_gray">❚</span>
+                    {% endfor %}
+                </div>
+
+                <form action="/update_card" method="post" class="tab-pane active" id="add_card">
+                    <input type="hidden" name="card_id" value="{{ card.id }}">
+                    <div class="mb-3">
+                        <label for="question">Question</label>
+                        <input autocomplete="off" autofocus class="form-control mx-auto" id="question" name="question" placeholder="Type the question" type="text" required value="{{ card.question }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="answer">Answer</label>
+                        <input autocomplete="off" class="form-control mx-auto" id="answer" name="answer" placeholder="Type the answer" type="text" required value="{{ card.answer }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Save <span class="shortcut"><img src="/static/img/return.svg"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

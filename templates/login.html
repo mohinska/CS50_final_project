@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block main %}
+
+
+    <div class="card mx-auto" style="width: fit-content; height: fit-content;">
+        <div class="card-body p-4">
+            <h2 class="mx-auto">Get started</h2>
+            <hr class="m-0 mb-3">
+
+            <ul class="nav nav-tabs toggle">
+                <li class="active btn" href="#signup" data-toggle="tab">Sign up</li>
+                <li class="btn" href="#login" data-toggle="tab">Log in</li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="signup">
+                    <form action="/signup" method="post">
+                        <div class="mb-3">
+                            <label for="username">Username</label>
+                            <input autocomplete="off" autofocus class="form-control mx-auto" id="username" name="username" placeholder="david" type="text" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password">Password</label>
+                            <input class="form-control mx-auto" id="password" name="password" placeholder="1234" type="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmation">Confirm Password</label>
+                            <input class="form-control mx-auto" id="confirmation" name="confirmation" placeholder="1234" type="password" required>
+                        </div>
+                        <button class="btn btn-primary float-end" type="submit">Sign Up <span class="shortcut"><img src="/static/img/return.svg"></span></button>
+                    </form>
+                </div>
+
+                <div class="tab-pane" id="login">
+                    <form action="/login" method="post">
+                        <div class="mb-3">
+                            <label for="username">Username</label>
+                            <input autocomplete="off" autofocus class="form-control mx-auto" id="username" name="username" placeholder="david" type="text" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password">Password</label>
+                            <input class="form-control mx-auto" id="password" name="password" placeholder="1234" type="password" required>
+                        </div>
+                        <button class="btn btn-primary float-end" type="submit">Log In <span class="shortcut"><img src="/static/img/return.svg"></span></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+{% endblock %}

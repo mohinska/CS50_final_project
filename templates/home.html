@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    {% if decks %}
+        <div class="d-flex flex-wrap">
+            {% for deck in decks %}
+                <a href="{{ url_for('deck_view', deck_id=deck.id) }}" class="text-decoration-none m-1">
+                    <div class="card p-1">
+                        <div class="card-body">
+                            <h3 class="card-title"><span class="{{ deck.color }}">{{ deck.icon }}</span> {{ deck.name }}</h3>
+                            <p>Cards: {{ deck.cards_num }} <br>
+                                To learn: {{ deck.to_learn_num }}</p>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center">
+            <div class="d-flex flex-column align-items-center p-4">
+                <p>Library seems to be empty</p>
+                <sub>Create your first deck here!</sub>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDeckModal">
+                Add first deck
+            </button>
+        </div>
+    {% endif %}
+
+{% endblock %}

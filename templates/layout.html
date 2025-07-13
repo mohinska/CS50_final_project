@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+        <link rel="icon" href="/static/img/icon.png">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+
+        <link href="/static/style.css" rel="stylesheet">
+        <script src="/static/script.js"></script>
+
+
+        <title>
+            {% if session["user_id"] %}
+                {% block title %}{% endblock %} • Fleshka
+            {% else %}
+                Fleshka
+            {% endif %}
+        </title>
+
+    </head>
+
+    <body class="d-flex flex-column gap-3 py-3 min-vh-100">
+        <div class="container sticky-top p-0">
+            <nav class="navbar navbar-expand">
+                <div class="container-fluid mx-3">
+                    <a class="navbar-brand" href="/"><span class="logo">Fleshka</span></a>
+                    <div class="collapse navbar-collapse" id="navbar">
+                        {% if session["user_id"] %}
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/">Library</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/settings">Settings</a>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav acc ms-auto gap-3">
+                                <li class="nav-item d-flex flex-row align-items-center gap-1">
+                                    <img src="/static/img/flame.{{ user['streak_icon'] }}.svg" alt="streak" height="24px">
+                                    {{ user["streak"] }}
+                                </li>
+                                <li class="nav-item">
+                                    <img class="user-pic" src="/static/img/user_pics/{{ user['profile_pic_id'] }}.png" alt="profile picture">
+                                </li>
+                            </ul>
+                        {% else %}
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item">
+                                    <a class="btn btn-primary" href="/signup">Get started</a>
+                                </li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <main class="container-fluid container mx-auto d-flex flex-column" >
+            {% block main %}{% endblock %}
+        </main>
+
+        <footer class=" justify-content-between container-md px-0">
+            {% if session["user_id"] %}
+                <a class="btn btn-light btn-small" href="mailto:fleshka-app@gmail.com"><img src="/static/img/mail.svg" width="24px"></a>
+                <div class="d-flex gap-3">
+                   {% if "/deck_view" in request.path %}
+                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addCardModal">
+                            Add card <span class="shortcut">A</span>
+                        </button>
+                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#deleteDeckModal">
+                            Delete deck
+                        </button>
+
+                    {% elif "/card_view" in request.path %}
+                        <form action="/delete_card" method="post">
+                            <input type="hidden" name="card_id" value="{{ card.id }}">
+                            <button type="submit" class="btn btn-light">
+                                Delete card
+                            </button>
+                        </form>
+
+                    {% elif home %}
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDeckModal">
+                            Add new deck <span class="shortcut">A</span>
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </footer>
+
+        {% if home %}
+        <div class="modal" id="addDeckModal" tabindex="-1" aria-labelledby="addDeckModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content w-auto" style="max-width: fit-content;">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="addDeckModalLabel">Add new deck</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <hr class="m-0 mb-3">
+
+                    <div class="modal-body">
+                        <form action="/create_deck" method="post" class="tab-pane active" id="create_deck">
+                            <div class="mb-3">
+                                <label for="name">Name</label>
+                                <input autocomplete="off" autofocus class="form-control mx-auto" id="name" name="name" placeholder="Biology" type="text" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="icon">Icon</label>
+                                <div class="icon-radio-group">
+                                    <input type="radio" value="1" id="icon-bulb" name="icon" checked>
+                                    <label for="icon-bulb" class="icon-box">􀛮</label>
+                                    <input type="radio" value="2" id="icon-earth" name="icon">
+                                    <label for="icon-earth" class="icon-box">􀆪</label>
+                                    <input type="radio" value="3" id="icon-atom" name="icon">
+                                    <label for="icon-atom" class="icon-box">􀬚</label>
+                                    <input type="radio" value="4" id="icon-book" name="icon">
+                                    <label for="icon-book" class="icon-box">􀉛</label>
+                                    <input type="radio" value="5" id="icon-palette" name="icon">
+                                    <label for="icon-palette" class="icon-box">􀌫</label>
+                                    <input type="radio" value="6" id="icon-pencil" name="icon">
+                                    <label for="icon-pencil" class="icon-box">􀉥</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="color">Color</label>
+                                <div class="color-radio-group">
+                                    <input type="radio" value="yellow" id="yellow" name="color" checked>
+                                    <label for="yellow" class="yellow">􀀁</label>
+                                    <input type="radio" value="red" id="red" name="color">
+                                    <label for="red" class="red">􀀁</label>
+                                    <input type="radio" value="green" id="green" name="color">
+                                    <label for="green" class="green">􀀁</label>
+                                    <input type="radio" value="blue" id="blue" name="color">
+                                    <label for="blue" class="blue">􀀁</label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% elif deck %}
+        <div class="modal" id="addCardModal" tabindex="-1" aria-labelledby="addCardModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content w-auto" style="max-width: fit-content;">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="addCardModalLabel">Add new card</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <hr class="m-0 mb-3">
+
+                    <div class="modal-body">
+
+                        <ul class="nav nav-tabs toggle mb-3">
+                            <li class="active btn" href="#add_card" data-toggle="tab">Add</li>
+                            <li class="btn" href="#import_deck" data-toggle="tab">Import</li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <form action="/add_card" method="post" class="tab-pane active" id="add_card">
+                                <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                                <div class="mb-3">
+                                    <label for="question">Question</label>
+                                    <input autocomplete="off" autofocus class="form-control mx-auto" id="question" name="question" placeholder="Type the question" type="text" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="answer">Answer</label>
+                                    <input autocomplete="off" class="form-control mx-auto" id="answer" name="answer" placeholder="Type the answer" type="text" required>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Create</button>
+                                </div>
+                            </form>
+
+                            <form action="/import_deck" method="post" enctype="multipart/form-data" class="tab-pane" id="import_deck">
+                                <div class="mb-3">
+                                    <input type="hidden" name="deck_id" value="{{ deck.id }}">
+
+                                    <input type="file" autofocus id="csv_deck" name="csv_deck" class="form-control mx-auto" accept=".csv">
+                                    <sub>Format for file: question, answer</sub>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Import</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="deleteDeckModal" tabindex="-1" aria-labelledby="deleteDeckModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content w-auto" style="max-width: fit-content;">
+                    <div class="modal-header d-flex flex-column gap-1 pb-4">
+                        <h2 class="modal-title m-0" id="deleteDeckModalLabel">Delete this deck?</h2>
+                        <sub class="m-0">You won’t be able to restore it</sub>
+                    </div>
+
+                    <hr class="m-0 mb-3">
+
+                    <div class="modal-body d-flex flex-row justify-content-between gap-3">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <form action="/delete_deck" method="post">
+                            <input type="hidden" name="deck_id" id="delete-deck-id" value="{{ deck.id }}">
+                            <button type="submit" class="btn btn-danger">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="practiceModal" tabindex="-1" aria-labelledby="practiceModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content w-auto" style="max-width: fit-content;">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="practiceModalLabel">Practice deck</h2>
+                    </div>
+
+                    <hr class="m-0 mb-3">
+
+                    <div class="modal-body">
+                        <form action="/practice" method="post" class="tab-pane active" id="add_card">
+                            <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                            <div class="mb-3 d-flex flex-column">
+                                <label for="quantity">Quantity</label>
+                                <input class="icon-box"
+                                    name="quantity"
+                                    type="number"
+                                    min="1"
+                                    max="{{ deck.cards_num }}"
+                                    value="{{ (deck.cards_num / 2)|int }}"
+                                    required>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="all" id="all-cards">
+                                <label class="form-check-label" for="all-cards">
+                                    Study all cards in the deck
+                                </label>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    Practice
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    </body>
+
+</html>

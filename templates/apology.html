@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Apology
+{% endblock %}
+
+{% block main %}
+
+    <img alt="{{ top }}" class="border img-fluid" src="https://api.memegen.link/images/custom/{{ top | urlencode }}/{{ bottom | urlencode }}.jpg?background=https://ouch-cdn2.icons8.com/oCNzbNwJY7tWgqkkE04lgZOYQx_6FwnVisgctK4rvIw/rs:fit:368:396/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9zdmcvNjUw/LzBhZWFmZjlhLThm/YTctNDVmNS05MzA1/LWUwMGYyNDhkODZj/YS5zdmc.png&width=400&font=notosans" title="{{ top }}">
+
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Learn {{ deck.name }}
+{% endblock %}
+
+{% block main %}
+<div class="d-flex flex-column gap-3 flex-fill p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="card-title"><span class="{{ deck.color }}">{{ deck.icon }}</span> {{ deck.name }}</h1>
+
+        <div class="d-flex flex-row align-items-center gap-3">
+            <p id="progress-text" class="m-0">0 / {{ deck.practice_num }}</p>
+            <div class="progress" style="width: 120px;">
+                <div class="progress-bar" role="progressbar" style="width: 0%;"
+                    aria-valuemin="0"
+                    aria-valuemax="{{ deck.practice_num }}"
+                    aria-valuenow="0"
+                    id="progress-bar">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="card-container" class="card practice d-flex mx-auto">
+        {% for card in cards %}
+            <div class="practice-card {{ 'd-none' if not loop.first }}" data-index="{{ loop.index }}" data-card-id="{{ card.id }}">
+                <div class="card-body d-flex flex-column justify-content-between h-100">
+                    <div class="card-text">
+                      <div gap-0>
+                          {% for _ in range(card.progress) %}
+                              <span class="green">❚</span>
+                          {% endfor %}
+                          {% for _ in range(10 - card.progress) %}
+                              <span class="light_gray">❚</span>
+                          {% endfor %}
+                      </div>
+                        <sub>Question</sub>
+                        <p>{{ card.question }}</p>
+                        <div class="mt-3 answer d-none">
+                          <sub>Answer</sub>
+                          <p>{{ card.answer }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                      <button class="btn btn-primary show-answer-btn">Show answer <span class="shortcut"><img src="/static/img/return.svg"></span></button>
+                      <div class="response-buttons d-none mt-3 d-flex justify-content-between gap-2">
+                          <button class="btn btn-light">I didn't know <span class="shortcut">1</span></button>
+                          <button class="btn btn-light">I knew <span class="shortcut">2</span></button>
+                          <button class="btn btn-light">Next <span class="shortcut"><img src="/static/img/return.svg"></span></button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.practice-card');
+    let currentIndex = 0;
+    let userResponse = null; // 'knew' or 'didnt_know'
+
+    function updateProgress() {
+        const progress = Math.round(((currentIndex + 1) / cards.length) * 100);
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        document.getElementById('progress-bar').setAttribute('aria-valuenow', currentIndex + 1);
+        document.getElementById('progress-text').textContent = `${currentIndex + 1} / ${cards.length}`;
+    }
+
+    function showCard(index) {
+        cards.forEach((card, i) => {
+            card.classList.toggle('d-none', i !== index);
+        });
+        updateProgress();
+        userResponse = null; // Reset response for new card
+    }
+
+    function showAnswer(cardIndex) {
+        const card = cards[cardIndex];
+        card.querySelector('.answer').classList.remove('d-none');
+        card.querySelector('.response-buttons').classList.remove('d-none');
+        card.querySelector('.show-answer-btn').classList.add('d-none');
+    }
+
+    function selectResponse(responseType) {
+        const card = cards[currentIndex];
+        const didntKnowBtn = card.querySelector('.response-buttons .btn:first-child');
+        const knewBtn = card.querySelector('.response-buttons .btn:nth-child(2)');
+
+        // Reset button styles
+        didntKnowBtn.style.backgroundColor = '';
+        didntKnowBtn.style.color = '';
+        knewBtn.style.backgroundColor = '';
+        knewBtn.style.color = '';
+
+        // Set selected button style (red)
+        if (responseType === 'didnt_know') {
+            didntKnowBtn.style.backgroundColor = '#FF2D55';
+            didntKnowBtn.style.color = 'white';
+            userResponse = 0;
+        } else if (responseType === 'knew') {
+            knewBtn.style.backgroundColor = '#34C759';
+            knewBtn.style.color = 'white';
+            userResponse = 1;
+        }
+    }
+
+    async function nextCard() {
+        if (userResponse === null) {
+            return;
+        }
+
+        const currentCard = cards[currentIndex];
+        const cardId = currentCard.getAttribute('data-card-id');
+
+        await updateCardProgress(currentIndex, userResponse); // додано await
+
+        if (currentIndex < cards.length - 1) {
+            currentIndex++;
+            showCard(currentIndex);
+        } else {
+            const deckId = {{ deck.id }};
+            window.location.href = `/deck_view/${deckId}`;
+        }
+    }
+
+    async function updateCardProgress(cardIndex, response) {
+        const card = cards[cardIndex];
+        const cardId = card.getAttribute('data-card-id');
+
+        const formData = new FormData();
+        formData.append('card_id', cardId);
+        formData.append('response', response);
+
+        try {
+            const response = await fetch('/update_card_progress', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            console.log("Server response:", data);
+        } catch (error) {
+            console.error("Error updating progress:", error);
+        }
+    }
+    // Event listeners for show answer buttons
+    document.querySelectorAll('.show-answer-btn').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+            showAnswer(i);
+        });
+    });
+
+    // Event listeners for response buttons
+    cards.forEach((card, cardIndex) => {
+        const responseButtons = card.querySelector('.response-buttons');
+        const didntKnowBtn = responseButtons.querySelector('.btn:first-child');
+        const knewBtn = responseButtons.querySelector('.btn:nth-child(2)');
+        const nextBtn = responseButtons.querySelector('.btn:last-child');
+
+        didntKnowBtn.addEventListener('click', () => {
+            selectResponse('didnt_know');
+        });
+
+        knewBtn.addEventListener('click', () => {
+            selectResponse('knew');
+        });
+
+        nextBtn.addEventListener('click', () => {
+            nextCard();
+        });
+    });
+
+    // Keyboard event listeners
+    document.addEventListener('keydown', (e) => {
+        const currentCard = cards[currentIndex];
+        const answerVisible = !currentCard.querySelector('.answer').classList.contains('d-none');
+
+        if (e.key === 'Enter') {
+            if (!answerVisible) {
+                // Show answer
+                showAnswer(currentIndex);
+            } else if (userResponse !== null) {
+                // Next card (only if response is selected)
+                nextCard();
+            }
+        } else if (answerVisible) {
+            // These keys only work when answer is visible
+            if (e.key === '1') {
+                selectResponse('didnt_know');
+            } else if (e.key === '2') {
+                selectResponse('knew');
+            }
+        }
+    });
+
+    // Initialize
+    showCard(0);
+});
+</script>
+{% endblock %}

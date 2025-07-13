@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ deck.name }}
+{% endblock %}
+
+{% block main %}
+    <div class="d-flex flex-column gap-3 flex-fill p-4">
+        <h1 class="card-title"><span class="{{ deck.color }}">{{ deck.icon }}</span> {{ deck.name }}</h1>
+        {% if cards %}
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#practiceModal">
+                    Practice <span class="shortcut">P</span>
+                </button>
+                <div class="d-flex flex-row gap-3">
+                    <sub>Cards: {{ deck.cards_num }}</sub>
+                    <sub>To learn: {{ deck.to_learn_num }}</sub>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap">
+                {% for card in cards %}
+                    <a href="{{ url_for('card_view', card_id=card.id) }}" class="text-decoration-none m-1">
+                        <div class="card p-1">
+                            <div class="card-body">
+                                <sub>Question</sub>
+                                <p>{{ card.question[:12] }}{% if card.question|length > 12 %}...{% endif %}</p>
+
+                                <sub>Answer</sub>
+                                <p>{{ card.answer[:12] }}{% if card.answer|length > 12 %}...{% endif %}</p>
+
+                                <div gap-0>
+                                    {% for _ in range(card.progress) %}
+                                        <span class="green">❚</span>
+                                    {% endfor %}
+                                    {% for _ in range(10 - card.progress) %}
+                                        <span class="light_gray">❚</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+
+        {% endif %}
+    </div>
+{% endblock %}

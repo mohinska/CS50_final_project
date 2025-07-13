@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Settings
+{% endblock %}
+
+{% block main %}
+<div class="d-flex flex-row flex-grow-1 gap-5 p-3">
+
+    <div class="d-flex flex-column gap-3">
+        <div class="card p-3" style="height: fit-content;">
+            <p>Hi, {{ user.username }}</p>
+            <p class="m-0">
+                It’s your {{ user.streak }} day of studying
+            </p>
+        </div>
+        <form action="/logout" method="post">
+            <button class="btn btn-light">Log out</button>
+        </form>
+        <form action="/delete_account" method="post" class="align-self-start">
+            <button class="btn btn-danger">Delete account</button>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-center  flex-grow-1">
+        <div class="d-flex flex-column gap-3" >
+            <div class="d-flex flex-row gap-5">
+                <div>
+                    <img class="rounded-circle" style="width: 10em;" src="/static/img/user_pics/{{ user['profile_pic_id'] }}.png" alt="profile picture">
+                </div>
+                <form action="/update_profile_pic" method="post">
+                    <div class="user-grid gap-3 flex-fill d-grid">
+                        {% for i in range(1, 9) %}
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="profile_pic_id" value="{{ i }}" {% if user.profile_pic_id == i %}checked{% endif %} hidden>
+                                <img class="user-pic {% if user.profile_pic_id == i %}selected{% endif %}" src="/static/img/user_pics/{{ i }}.png" alt="picture">
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-light mt-2" type="submit">Update photo</button>
+                </form>
+            </div>
+
+            <div>
+                <form action="/update_profile" method="post" class="d-flex flex-column gap-3">
+                    <div class="flex-grow-1">
+                        <label for="username">Username</label>
+                        <input type="text" name="username" value="{{ user.username }}" class="form-control">
+                    </div>
+                    <div class="flex-grow-1">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" value="••••••••••" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-light">Update profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
